@@ -7,7 +7,7 @@ import report_generator                                       # 오후에 만든
 import notifier                                               # 3교시에 만든 notifier.py 를 불러온다
 
 
-def run_report(events, today):                                # 요약 → 정렬 → 총평 → 저장을 묶은 함수
+def run_report(events, today, folder="."):                    # 요약 → 정렬 → 총평 → 저장을 묶은 함수
     summaries = event_summarizer.summarize_events(events)     # 묶음으로 나눠 요약한다 — LLM
     # 위험도순으로 정렬한다
     sorted_summaries = event_summarizer.sort_by_risk(summaries)
@@ -15,7 +15,7 @@ def run_report(events, today):                                # 요약 → 정�
     overview = report_generator.make_overview(sorted_summaries)
     # 틀 · 숫자 · 총평으로 보고서를 만든다
     report = report_generator.build_report(sorted_summaries, overview, today)
-    filename = report_generator.save_report(report, today)    # 날짜가 든 파일로 저장한다
+    filename = report_generator.save_report(report, today, folder)  # 날짜가 든 파일로 저장한다
     # 결과 둘을 딕셔너리 하나로 리턴한다
     return {"filename": filename, "summaries": sorted_summaries}
 
@@ -29,7 +29,7 @@ def run_pipeline(config_path, today):                         # 설정 → 보�
     llm_client.MODEL = config["model"]                        # 모델 이름도 설정 파일에서 온다
     with open("events_1008.json", encoding="utf-8") as f:     # 오늘 처리할 경보 파일을 연다
         events = json.load(f)                                 # 경보 목록을 리스트로 읽는다
-    result = run_report(events, today)                        # 보고서를 만든다 — LLM 두 번
+    result = run_report(events, today, config["report_folder"])  # 보고서를 만든다 — LLM 두 번. 저장 폴더는 설정에서
 
     approve = 0                                               # 사람 확인이 필요한 건수. 0 에서 시작
     for s in result["summaries"]:                             # 정렬된 요약을 하나씩

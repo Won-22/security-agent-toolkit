@@ -1,3 +1,4 @@
+import os                                                     # 폴더 · 파일을 다루는 도구
 from llm_client import call_llm                               # llm_client.py 의 call_llm 을 꺼내 쓴다
 
 # 총평 지시 — 숫자는 코드가 세므로 쓰지 말라고 한다
@@ -41,8 +42,10 @@ def build_report(sorted_summaries, overview, today):          # 틀 · 숫자는
     return report                                             # 완성한 보고서 문자열을 리턴한다
 
 
-def save_report(report, today):                               # 보고서를 날짜가 든 파일로 저장하는 함수
-    filename = f"daily_report_{today.replace('-', '')}.md"    # 날짜의 - 를 빼서 파일 이름을 만든다 — daily_report_20261007.md
+def save_report(report, today, folder="."):                   # 보고서를 날짜가 든 파일로 저장하는 함수. folder 를 안 주면 지금 폴더
+    os.makedirs(folder, exist_ok=True)                        # 폴더가 없으면 만든다 (있으면 그냥 둔다)
+    # 날짜의 - 를 빼서 파일 이름을 만든다 — reports/daily_report_20261007.md
+    filename = os.path.join(folder, f"daily_report_{today.replace('-', '')}.md")
     with open(filename, "w", encoding="utf-8") as f:          # 보고서 파일을 쓰기로 연다 (있으면 덮어쓴다)
         f.write(report)                                       # 보고서 문자열을 파일에 쓴다
     return filename                                           # 저장한 파일 이름을 리턴한다
